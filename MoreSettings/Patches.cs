@@ -223,12 +223,12 @@ namespace MoreSettings
         internal static void PostPlayerListPlayerSetPlayer(PlayerListPlayer __instance, Player param_1)
         {
             // Check if the mic hasn't already been created
-            if (!Instance.playerListPlayers.ContainsKey(param_1.steamProfile.m_SteamID) || Instance.playerListPlayers[param_1.steamProfile.m_SteamID] != __instance)
+            if (!Instance.playerListPlayers.ContainsKey(param_1.steamProfile.m_SteamID) || Instance.playerListPlayers[param_1.steamProfile.m_SteamID] != __instance || Instance.playerListMicImages[param_1.steamProfile.m_SteamID] == null)
             {
                 Instance.playerListPlayers[param_1.steamProfile.m_SteamID] = __instance;
 
                 // Make room for the mic in the ui
-                __instance.ping.GetComponent<RectTransform>().sizeDelta -= new Vector2(35/*width(25) + spacing(10)*/, 0);
+                __instance.ping.GetComponent<RectTransform>().sizeDelta -= new Vector2(35/*width (25) + spacing (10)*/, 0);
 
                 // Create the mic icon
                 GameObject micObject = Object.Instantiate(__instance.icon.gameObject, __instance.transform);
@@ -247,7 +247,7 @@ namespace MoreSettings
         [HarmonyPostfix]
         internal static void PostOnlinePlayerDissonanceJawMovementSlowUpdate(OnlinePlayerDissonanceJawMovement __instance)
         {
-            if (__instance.pm == null || __instance.pm.steamProfile.m_SteamID == 0UL || !Instance.playerListMicImages.ContainsKey(__instance.pm.steamProfile.m_SteamID))
+            if (__instance.pm == null || __instance.pm.steamProfile.m_SteamID == default || !Instance.playerListMicImages.ContainsKey(__instance.pm.steamProfile.m_SteamID) || Instance.playerListMicImages[__instance.pm.steamProfile.m_SteamID] == null)
                 return;
 
             Instance.playerJawMovements[__instance.pm.steamProfile.m_SteamID] = __instance;
