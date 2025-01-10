@@ -22,3 +22,6 @@ This can be helpful to find and identify mic spammers in larger/packed lobbies f
 
 Note that internally this doesn't directly listen/check for if the player actually has audio coming through their mic, it actually just checks if the mouth of the player's character is moving (which does only move when it detects audio).
 However this check only occurs every 0.5 seconds, meaning sudden/short sounds can occur between this range and not be detected.
+
+## Steam Profile Viewer
+When clicking the three dots next to a player's name in the Tab menu, you can now select "Profile" to open the Steam Overlay and view the player's profile.
