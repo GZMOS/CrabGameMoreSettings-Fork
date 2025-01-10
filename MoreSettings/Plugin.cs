@@ -1,10 +1,12 @@
 using BepInEx;
 using BepInEx.IL2CPP;
 using HarmonyLib;
+using SteamworksNative;
 using System;
 using System.Collections.Generic;
 using System.Globalization;
 using TMPro;
+using UnhollowerRuntimeLib;
 using UnityEngine;
 using UnityEngine.UI;
 
@@ -27,7 +29,7 @@ namespace MoreSettings
         internal Dictionary<ulong, PlayerListPlayer> playerListPlayers = [];
         internal Dictionary<ulong, RawImage> playerListMicImages = [];
         internal Dictionary<ulong, OnlinePlayerDissonanceJawMovement> playerJawMovements = [];
-        
+
 
         public override void Load()
         {
@@ -37,6 +39,8 @@ namespace MoreSettings
             CultureInfo.DefaultThreadCurrentUICulture = CultureInfo.InvariantCulture;
 
             Instance = this;
+
+            ClassInjector.RegisterTypeInIl2Cpp<ModListViewSteamProfileButton>();
 
             Harmony.CreateAndPatchAll(typeof(Patches));
             Log.LogInfo($"Loaded [{MyPluginInfo.PLUGIN_NAME} {MyPluginInfo.PLUGIN_VERSION}]");
@@ -65,5 +69,11 @@ namespace MoreSettings
         public int alternativeCrouch = (int)KeyCode.C;
         public bool holdInteract = false;
         public bool holdAttack = false;
+    }
+
+    public class ModListViewSteamProfileButton : MonoBehaviour
+    {
+        public void Clicked()
+            => SteamFriends.ActivateGameOverlayToUser("steamid", new(PlayerListManagePlayer.Instance.field_Private_UInt64_0));
     }
 }

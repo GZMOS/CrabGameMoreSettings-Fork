@@ -1,7 +1,11 @@
 ﻿using HarmonyLib;
 using System.IO;
 using System.Xml.Serialization;
+using TMPro;
+using UnhollowerBaseLib;
+using UnhollowerRuntimeLib;
 using UnityEngine;
+using UnityEngine.Events;
 using UnityEngine.UI;
 using static MoreSettings.MoreSettings;
 
@@ -252,6 +256,31 @@ namespace MoreSettings
 
             Instance.playerJawMovements[__instance.pm.steamProfile.m_SteamID] = __instance;
             Instance.playerListMicImages[__instance.pm.steamProfile.m_SteamID].enabled = Instance.PlayerIsTalking(__instance.pm.steamProfile.m_SteamID);
+        }
+
+
+        // View Steam Profile in Player List
+        [HarmonyPatch(typeof(PlayerListManagePlayer), nameof(PlayerListManagePlayer.Awake))]
+        [HarmonyPostfix]
+        internal static void PostPlayerListManagePlayerAwake(PlayerListManagePlayer __instance)
+        {
+            // Increase the height of the background to fit the extra button (button height(32) + spacing(5) = 37)
+            Transform tr = __instance.transform;
+            RectTransform rectTr = tr.GetChild(0).GetComponent<RectTransform>();
+            rectTr.sizeDelta += new Vector2(0f, 37f);
+
+            // Create viewBtn from muteBtn
+            Transform muteBtn = tr.GetChild(0).GetChild(1).GetChild(3);
+            GameObject viewBtn = Object.Instantiate(muteBtn.gameObject, muteBtn.parent);
+
+            // Change viewBtn visuals
+            viewBtn.GetComponent<Graphic>().color = new Color(0.25f, 0.25f, 0.75f);
+            viewBtn.transform.GetChild(4).GetComponent<TextMeshProUGUI>().text = "Profile";
+
+            // Set viewBtn's onClick event
+            UnityEvent ev = viewBtn.GetComponent<Button>().onClick;
+            ev.m_PersistentCalls.Clear();
+            ev.AddListener(viewBtn.AddComponent<ModListViewSteamProfileButton>(), UnityEventBase.GetValidMethodInfo(Il2CppType.Of<ModListViewSteamProfileButton>(), "Clicked", new Il2CppReferenceArray<Il2CppSystem.Type>(0)));
         }
     }
 }
