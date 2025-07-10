@@ -30,7 +30,8 @@ namespace MoreSettings
         internal Dictionary<ulong, PlayerListPlayer> playerListPlayers = [];
         internal Dictionary<ulong, RawImage> playerListMicImages = [];
         internal Dictionary<ulong, OnlinePlayerDissonanceJawMovement> playerJawMovements = [];
-
+        
+        public static readonly Dictionary<string, RawImage> _uiComponents = new();
 
         public override void Load()
         {

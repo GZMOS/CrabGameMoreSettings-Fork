@@ -111,12 +111,13 @@ namespace MoreSettings
         [HarmonyPostfix]
         internal static void PostGeneralUiSettingsStart(GeneralUiSettings __instance)
         {
-            Instance.guiTransparency = Instance.CreateSetting<GeneralUiSettingsSlider>(__instance.fov, 20, "GUI Transparency");
-            Instance.guiTransparency.SetSettings(Instance.save.guiTransparency);
-            
-            // some shit just to set it up for later
-            Instance.guiTransparency.slider.minValue = 0;
-            Instance.guiTransparency.slider.maxValue = 10;
+            GeneralUiSettingsSlider guiTransparency = Instance.CreateSetting<GeneralUiSettingsSlider>(__instance.sens, 20, "GUI Transparency");
+            guiTransparency.SetSettings(Instance.save.guiTransparency);
+            guiTransparency.slider.minValue = 0;
+            guiTransparency.slider.maxValue = 10;
+            float x = guiTransparency.currentSetting / 10f;
+            guiTransparency.value.text = x.ToString("0.##");
+            Instance.guiTransparency = guiTransparency;  // Assign to Instance after initialization is complete
             
             Instance.alternativeJump = Instance.CreateSetting<GeneralUiSettingsKeyInput>(__instance.jump, 5, "Jump (Alternative)");
             Instance.alternativeJump.SetSetting(Instance.save.alternativeJump, "Jump (Alternative)");
@@ -135,6 +136,9 @@ namespace MoreSettings
 
             Instance.holdAttack = Instance.CreateSetting<GeneralUiSettingsCheckbox>(__instance.holdCrouch, 19, "Hold to attack");
             Instance.holdAttack.SetSetting(Instance.save.holdAttack);
+            
+            __instance.fov.slider.maxValue = 140;
+            // __instance.fpsLimit.slider.maxValue = 10000;
         }
         
         // Listening for when settings are changed, and saves them
@@ -157,13 +161,20 @@ namespace MoreSettings
             }
         }
         
-        [HarmonyPatch(typeof(GeneralUiSettingsSlider), nameof(GeneralUiSettingsSlider.SetSettings))]
+        [HarmonyPatch(typeof(GeneralUiSettingsSlider), nameof(GeneralUiSettingsSlider.UpdateSettings))]
         [HarmonyPostfix]
         internal static void PostGeneralUiSettingsSliderSetSettings(GeneralUiSettingsSlider __instance)
         {
+            if (__instance == Instance.guiTransparency)
+            {
                 Instance.save.guiTransparency = __instance.currentSetting;
                 SaveManager.Instance.Save();
-                return;
+
+                float alpha = __instance.currentSetting / 10f;
+                __instance.value.text = alpha.ToString("0.##");
+                UpdateGuiTransparencyUI(alpha);
+
+            }
         }
         
         [HarmonyPatch(typeof(GeneralUiSettingsCheckbox), nameof(GeneralUiSettingsCheckbox.ToggleSetting))]
@@ -298,5 +309,38 @@ namespace MoreSettings
             ev.m_PersistentCalls.Clear();
             ev.AddListener(viewBtn.AddComponent<ModListViewSteamProfileButton>(), UnityEventBase.GetValidMethodInfo(Il2CppType.Of<ModListViewSteamProfileButton>(), "Clicked", new Il2CppReferenceArray<Il2CppSystem.Type>(0)));
         }
+        
+        // Ui color shit
+        
+        internal static void UpdateGuiTransparencyUI(float alpha)
+        {
+            void AddComponent(string path) =>
+                _uiComponents[path] = GameObject.Find(path).GetComponent<RawImage>();
+
+            AddComponent("GameUI/PlayerList/WindowUI");
+            AddComponent("GameUI/Pause/Overlay/MapSelection/GameSettingsWindow");
+            AddComponent("GameUI/Pause/Overlay/Menu/BtnsPanel/Invite");
+            AddComponent("GameUI/Status/ReadyStatus/Tab1");
+            // Removed GUI stuff because players couldn't read text or see items clearly
+            // AddComponent("GameUI/Pause/Overlay/Inventory/GameSettingsWindow");
+            // AddComponent("GameUI/Pause/Overlay/Settings");
+
+            foreach (var component in _uiComponents.Values)
+            {
+                var color = component.color;
+                color.a = alpha;
+                component.color = color;
+            }
+        }
+
+        [HarmonyPatch(typeof(GameUi), nameof(GameUi.Start))]
+        [HarmonyPostfix]
+        internal static void PostGameUiStart(GameUi __instance)
+        {
+            float alpha = Instance.save.guiTransparency/ 10f;
+            UpdateGuiTransparencyUI(alpha);
+        }
+        
+
     }
 }
