@@ -19,6 +19,7 @@ namespace MoreSettings
 
         internal MoreSettingsSave save;
 
+        internal GeneralUiSettingsSlider guiTransparency;
         internal GeneralUiSettingsKeyInput alternativeJump;
         internal GeneralUiSettingsCheckbox holdJump;
         internal GeneralUiSettingsCheckbox holdSprint;
@@ -63,6 +64,7 @@ namespace MoreSettings
     [Serializable]
     public class MoreSettingsSave
     {
+        public int guiTransparency = 5;
         public int alternativeJump = (int)KeyCode.Space;
         public bool holdJump = false;
         public bool holdSprint = true;

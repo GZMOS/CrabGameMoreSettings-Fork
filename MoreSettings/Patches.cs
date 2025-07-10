@@ -105,13 +105,19 @@ namespace MoreSettings
                 if (itemData.gunComponent != null)
                     itemData.gunComponent.automatic = true;
         }
-
-
+        
         // Add custom setting options to ui
         [HarmonyPatch(typeof(GeneralUiSettings), nameof(GeneralUiSettings.Start))]
         [HarmonyPostfix]
         internal static void PostGeneralUiSettingsStart(GeneralUiSettings __instance)
         {
+            Instance.guiTransparency = Instance.CreateSetting<GeneralUiSettingsSlider>(__instance.fov, 20, "GUI Transparency");
+            Instance.guiTransparency.SetSettings(Instance.save.guiTransparency);
+            
+            // some shit just to set it up for later
+            Instance.guiTransparency.slider.minValue = 0;
+            Instance.guiTransparency.slider.maxValue = 10;
+            
             Instance.alternativeJump = Instance.CreateSetting<GeneralUiSettingsKeyInput>(__instance.jump, 5, "Jump (Alternative)");
             Instance.alternativeJump.SetSetting(Instance.save.alternativeJump, "Jump (Alternative)");
 
@@ -130,7 +136,7 @@ namespace MoreSettings
             Instance.holdAttack = Instance.CreateSetting<GeneralUiSettingsCheckbox>(__instance.holdCrouch, 19, "Hold to attack");
             Instance.holdAttack.SetSetting(Instance.save.holdAttack);
         }
-
+        
         // Listening for when settings are changed, and saves them
         [HarmonyPatch(typeof(GeneralUiSettingsKeyInput), nameof(GeneralUiSettingsKeyInput.SetKey))]
         [HarmonyPostfix]
@@ -150,6 +156,16 @@ namespace MoreSettings
                 return;
             }
         }
+        
+        [HarmonyPatch(typeof(GeneralUiSettingsSlider), nameof(GeneralUiSettingsSlider.SetSettings))]
+        [HarmonyPostfix]
+        internal static void PostGeneralUiSettingsSliderSetSettings(GeneralUiSettingsSlider __instance)
+        {
+                Instance.save.guiTransparency = __instance.currentSetting;
+                SaveManager.Instance.Save();
+                return;
+        }
+        
         [HarmonyPatch(typeof(GeneralUiSettingsCheckbox), nameof(GeneralUiSettingsCheckbox.ToggleSetting))]
         [HarmonyPostfix]
         internal static void PostGeneralUiSettingsCheckboxToggleSetting(GeneralUiSettingsCheckbox __instance)
