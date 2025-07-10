@@ -25,3 +25,8 @@ However this check only occurs every 0.5 seconds, meaning sudden/short sounds ca
 
 ## Steam Profile Viewer
 When clicking the three dots next to a player's name in the Tab menu, you can now select "Profile" to open the Steam Overlay and view the player's profile.
+
+## GUI Transparency
+Adds a GUI transparency setting under the General tab.
+
+This lets you adjust the transparency of various guis (not all but most cuz i was lazy)
